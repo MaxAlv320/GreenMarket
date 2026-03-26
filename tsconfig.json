@@ -3,15 +3,17 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "expo-env.d.ts",
+    "src/views/View.test.jsx",
+    "src/viewmodels/UserViewModel.ts",
+    "src/hooks/useCounter.ts",
+    "src/components/Button.tsx"
   ]
 }
