@@ -40,6 +40,18 @@ This command will move the starter code to the **app-example** directory and cre
 To learn more about developing your project with Expo, look at the following resources:
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+
+##Colores:
+.color1 {color: #d0eff7;}
+.color2 {color: #f4f1f5;}
+.color3 {color: #0e6d1c;}
+.color4 {color: #51a20f;}
+.color5 {color: #e5c84e;}
+
+##Comandos a ejectuar:
+npm uninstall react-native-keychain
+npm i expo-secure-store
+
 - [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
 ## Join the community
