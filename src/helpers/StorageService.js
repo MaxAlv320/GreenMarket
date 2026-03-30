@@ -1,70 +1,26 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store';
 
+const TOKEN_KEY = "userToken";
 
-class StorageService {
-    //Regex
-    //Common Patterns
+export const saveToken = async (token) => {
+  await SecureStore.setItemAsync(TOKEN_KEY, token);
+};
 
-    static patterns = {
-        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
-    };
+export const getToken = async () => {
+  return await SecureStore.getItemAsync(TOKEN_KEY);
+};
 
-    static validate(type, value){
-        return this.patterns[type] ? this.patterns[type].test(value) : false;
-    };
+export const removeToken = async () => {
+  await SecureStore.deleteItemAsync(TOKEN_KEY);
+};
 
-    //ASYNC STORAGE - No sensible
-    static async setItem(key, value){
-        try {
-            const stringValue = typeof value === 'object' ? JSON.stringify(value) : String(value)
-            await AsyncStorage.setItem(key, stringValue)
-        } catch(err){
-            console.error("Error guardando en AsyncStorage", err)
-        }
-    }
+// AsyncStorage
+export const saveData = async (key, value) => {
+  await AsyncStorage.setItem(key, JSON.stringify(value));
+};
 
-    static async getItem(key){
-        try {
-            const value = await AsyncStorage.getItem(key)
-            // Parsear
-            try {
-                return JSON.parse(value)
-            } catch {
-                return value
-            }
-        } catch (err) {
-            console.error("Error al obtener en AsyncStorage", err)
-            return null
-        }
-
-    }
-
-    //Secure Store - datos sensibles
-    static async saveToken(key, token){
-        try {
-
-            await SecureStore.setItemAsync(key, token)
-            return true;      
-        } catch (err) {
-            console.error("Error guardndo en keychain", err)
-        }
-    }
-
-    static async getToken(key){
-        try {
-            return await SecureStore.setItemAsync(key)
-
-        } catch (err){
-            console.error("No se pudieron recuperar las credenciales", err)
-            return null
-        }
-    }
-
-    static async resetCredential(key){
-        await SecureStore.deleteItemAsync(key);
-    }
-}
-
-export default StorageService;
+export const getData = async (key) => {
+  const data = await AsyncStorage.getItem(key);
+  return data ? JSON.parse(data) : null;
+};
