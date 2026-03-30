@@ -1,20 +1,26 @@
-import { Button, Text, TextInput, View } from 'react-native';
-import { useAuthViewModel } from '../hooks/useAuthViewModel';
-import { useForm } from '../hooks/useForm';
+import { ScrollView, StyleSheet } from "react-native";
+
+import BrandLogo from "../components/BrandLogo";
+import RegisterForm from "../components/RegisterForm";
+
+// Hooks
+import { useAuthViewModel } from "../hooks/useAuthViewModel";
+import { useForm } from "../hooks/useForm";
 
 export default function RegisterView({ navigation }) {
   const { values, errors, handleChange, validate } = useForm({
-    email: '',
-    password: ''
+    name: "",
+    email: "",
+    password: "",
   });
 
-  const { register } = useAuthViewModel();
+  const { register, loading } = useAuthViewModel();
 
   const handleRegister = async () => {
     if (!validate()) return;
 
     try {
-      await register(values.email, values.password);
+      await register(values.name, values.email, values.password);
       alert("Usuario registrado correctamente");
       navigation.navigate("Login");
     } catch (error) {
@@ -22,27 +28,33 @@ export default function RegisterView({ navigation }) {
     }
   };
 
-    const vm = useAuthViewModel();
-    console.log("VM:", vm);
-
   return (
-    <View>
-      <Text>Register</Text>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <BrandLogo />
 
-      <TextInput
-        placeholder="Email"
-        value={values.email}
-        onChangeText={(text) => handleChange("email", text)}
+      <RegisterForm
+        name={values.name}
+        email={values.email}
+        password={values.password}
+        setName={(text) => handleChange("name", text)}
+        setEmail={(text) => handleChange("email", text)}
+        setPassword={(text) => handleChange("password", text)}
+        onSubmit={handleRegister}
+        loading={loading}
+        error={errors.name || errors.email || errors.password}
       />
-
-     <TextInput
-        placeholder="Password"
-        secureTextEntry
-        value={values.password}
-        onChangeText={(text) => handleChange("password", text)}
-     />
-
-      <Button title="Register" onPress={handleRegister} />
-    </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+  },
+});

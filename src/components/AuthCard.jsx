@@ -1,25 +1,27 @@
+import { StyleSheet, Text, View } from "react-native";
+
 export default function AuthCard({ title, children }) {
   return (
-    <div style={styles.card}>
-      <h2 style={styles.title}>{title}</h2>
+    <View style={styles.card}>
+      <Text style={styles.title}>{title}</Text>
       {children}
-    </div>
+    </View>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   card: {
-    width: "260px",
-    padding: "20px",
-    borderRadius: "16px",
-    background: "#e5e5e5",
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
+    width: 280,
+    padding: 20,
+    borderRadius: 16,
+    backgroundColor: "#e5e5e5",
+    alignSelf: "center",
   },
   title: {
     textAlign: "center",
     fontWeight: "bold",
     color: "#888",
+    fontSize: 18,
+    marginBottom: 10,
   },
-};
+});

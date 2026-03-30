@@ -1,3 +1,4 @@
+import { StyleSheet, Text } from "react-native";
 import AuthButton from "./AuthButton";
 import AuthCard from "./AuthCard";
 import AuthFooter from "./AuthFooter";
@@ -15,28 +16,35 @@ export default function LoginForm({
   return (
     <AuthCard title="LOGIN">
       <AuthInput
-        type="email"
         placeholder="Email"
         value={email}
-        onChange={setEmail}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
 
       <AuthInput
-        type="password"
         placeholder="Password"
         value={password}
-        onChange={setPassword}
+        onChangeText={setPassword}
+        secureTextEntry
       />
 
-      <AuthButton text="Entrar" onClick={onSubmit} loading={loading} />
+      <AuthButton text="Entrar" onPress={onSubmit} loading={loading} />
 
-      {error && (
-        <p style={{ color: "red", fontSize: "12px", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
       <AuthFooter />
     </AuthCard>
   );
 }
+
+const styles = StyleSheet.create({
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "600",
+  },
+});

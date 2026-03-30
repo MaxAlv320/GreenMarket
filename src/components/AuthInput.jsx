@@ -1,25 +1,29 @@
+import { StyleSheet, TextInput } from "react-native";
+
 export default function AuthInput({
-  type = "text",
   placeholder,
   value,
-  onChange,
+  onChangeText,
+  secureTextEntry = false,
 }) {
   return (
-    <input
-      type={type}
+    <TextInput
       placeholder={placeholder}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChangeText={onChangeText}
+      secureTextEntry={secureTextEntry}
       style={styles.input}
+      placeholderTextColor="#888"
     />
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   input: {
-    padding: "10px",
-    borderRadius: "8px",
-    border: "none",
-    background: "#d6d6d6",
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#d6d6d6",
+    marginBottom: 12,
+    color: "#000",
   },
-};
+});

@@ -1,3 +1,4 @@
+import { StyleSheet, Text } from "react-native"; // Importamos Text para el error
 import AuthButton from "./AuthButton";
 import AuthCard from "./AuthCard";
 import AuthFooter from "./AuthFooter";
@@ -16,36 +17,35 @@ export default function RegisterForm({
 }) {
   return (
     <AuthCard title="REGISTER">
+      <AuthInput placeholder="Nombre" value={name} onChangeText={setName} />
       <AuthInput
-        type="text"
-        placeholder="Nombre"
-        value={name}
-        onChange={setName}
-      />
-
-      <AuthInput
-        type="email"
         placeholder="Email"
         value={email}
-        onChange={setEmail}
+        onChangeText={setEmail}
+        keyboardType="email-address"
       />
 
+      {/* Input de Password */}
       <AuthInput
-        type="password"
         placeholder="Password"
         value={password}
-        onChange={setPassword}
+        onChangeText={setPassword}
+        secureTextEntry
       />
+      <AuthButton text="Registrarse" onPress={onSubmit} loading={loading} />
 
-      <AuthButton text="Registrarse" onClick={onSubmit} loading={loading} />
-
-      {error && (
-        <p style={{ color: "red", fontSize: "12px", textAlign: "center" }}>
-          {error}
-        </p>
-      )}
+      {error && <Text style={styles.errorText}>{error}</Text>}
 
       <AuthFooter />
     </AuthCard>
   );
 }
+
+const styles = StyleSheet.create({
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    textAlign: "center",
+    marginTop: 10,
+  },
+});

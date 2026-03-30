@@ -1,17 +1,17 @@
-import { getData, saveData, saveToken } from '../helpers/StorageService';
+import { getData, saveData, saveToken } from "../helpers/StorageService";
 
 const USERS_KEY = "users";
 
-export const registerService = async (email, password) => {
+export const registerService = async (name, email, password) => {
   const users = (await getData(USERS_KEY)) || [];
 
   // Verificar si ya existe
-  const userExists = users.find(u => u.email === email);
+  const userExists = users.find((u) => u.email === email);
   if (userExists) {
     throw new Error("El usuario ya existe");
   }
 
-  const newUser = { email, password };
+  const newUser = { name, email, password };
 
   users.push(newUser);
 
@@ -23,9 +23,7 @@ export const registerService = async (email, password) => {
 export const loginService = async (email, password) => {
   const users = (await getData(USERS_KEY)) || [];
 
-  const user = users.find(
-    u => u.email === email && u.password === password
-  );
+  const user = users.find((u) => u.email === email && u.password === password);
 
   if (!user) {
     throw new Error("Credenciales inválidas");
@@ -37,6 +35,6 @@ export const loginService = async (email, password) => {
 
   return {
     token: fakeToken,
-    user
+    user,
   };
 };

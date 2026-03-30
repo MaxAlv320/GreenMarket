@@ -1,14 +1,33 @@
-import { Button, Text, TextInput, View } from 'react-native';
-import { useAuthViewModel } from '../hooks/useAuthViewModel';
-import { useForm } from '../hooks/useForm';
+import React from "react";
+import { ScrollView, StyleSheet } from "react-native";
+
+// Componentes Reutilizables que ya definimos
+import BrandLogo from "../components/BrandLogo";
+import LoginForm from "../components/LoginForm";
+import NavButton from "../components/NavButton";
+
+// Hooks de lógica
+import { useAuthViewModel } from "../hooks/useAuthViewModel";
+import { useForm } from "../hooks/useForm";
 
 export default function LoginView({ navigation }) {
   const { values, errors, handleChange, validate } = useForm({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
-  const { login } = useAuthViewModel();
+  const { login, loading } = useAuthViewModel();
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <NavButton
+          title="Registro"
+          onPress={() => navigation.navigate("Register")}
+        />
+      ),
+    });
+  }, [navigation]);
 
   const handleLogin = async () => {
     if (!validate()) return;
@@ -22,27 +41,30 @@ export default function LoginView({ navigation }) {
   };
 
   return (
-    <View>
-      <Text>Login</Text>
+    <ScrollView
+      contentContainerStyle={styles.container}
+      keyboardShouldPersistTaps="handled"
+    >
+      <BrandLogo />
 
-      <TextInput
-        placeholder="Email"
-        onChangeText={(text) => handleChange("email", text)}
+      <LoginForm
+        email={values.email}
+        password={values.password}
+        setEmail={(text) => handleChange("email", text)}
+        setPassword={(text) => handleChange("password", text)}
+        onSubmit={handleLogin} // Conectado a la función de arriba
+        loading={loading}
+        error={errors.email || errors.password}
       />
-
-      <TextInput
-        placeholder="Password"
-        secureTextEntry
-        onChangeText={(text) => handleChange("password", text)}
-      />
-    
-
-      <Button title="Login" onPress={handleLogin} />
-
-      <Button
-        title="Ir a Register"
-        onPress={() => navigation.navigate("Register")}
-      />
-    </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#F5F5F5",
+  },
+});

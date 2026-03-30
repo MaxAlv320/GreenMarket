@@ -1,37 +1,39 @@
+import { StyleSheet, View } from "react-native";
+
 export default function AuthFooter() {
   return (
-    <div style={styles.container}>
-      <div style={styles.dots}>
-        <span style={styles.dot}></span>
-        <span style={styles.dot}></span>
-        <span style={styles.dot}></span>
-      </div>
-      <div style={styles.line}></div>
-    </div>
+    <View style={styles.container}>
+      {/* Contenedor de los puntos (dots) */}
+      <View style={styles.dots}>
+        <View style={styles.dot} />
+        <View style={styles.dot} />
+        <View style={styles.dot} />
+      </View>
+      <View style={styles.line} />
+    </View>
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
-    marginTop: "10px",
-    textAlign: "center",
+    marginTop: 10,
+    alignItems: "center",
   },
   dots: {
-    display: "flex",
+    flexDirection: "row",
     justifyContent: "center",
-    gap: "6px",
-    marginBottom: "6px",
+    marginBottom: 10,
   },
   dot: {
-    width: "10px",
-    height: "10px",
-    background: "#999",
-    borderRadius: "50%",
+    width: 10,
+    height: 10,
+    backgroundColor: "#999",
+    borderRadius: 5,
+    marginHorizontal: 3,
   },
   line: {
-    height: "2px",
-    background: "#bbb",
+    height: 2,
+    backgroundColor: "#bbb",
     width: "80%",
-    margin: "0 auto",
   },
-};
+});
