@@ -1,6 +1,6 @@
 import { Button, Text, TextInput, View } from 'react-native';
+import { useAuthViewModel } from '../hooks/useAuthViewModel';
 import { useForm } from '../hooks/useForm';
-import { useAuthViewModel } from '../viewmodels/useAuthViewModel';
 
 export default function RegisterView({ navigation }) {
   const { values, errors, handleChange, validate } = useForm({

@@ -1,6 +1,6 @@
 import { Button, Text, TextInput, View } from 'react-native';
+import { useAuthViewModel } from '../hooks/useAuthViewModel';
 import { useForm } from '../hooks/useForm';
-import { useAuthViewModel } from '../viewmodels/useAuthViewModel';
 
 export default function LoginView({ navigation }) {
   const { values, errors, handleChange, validate } = useForm({
@@ -15,7 +15,7 @@ export default function LoginView({ navigation }) {
 
     try {
       await login(values.email, values.password);
-      navigation.navigate("Menu");
+      navigation.navigate("Main");
     } catch (error) {
       alert(error.message);
     }
@@ -29,14 +29,13 @@ export default function LoginView({ navigation }) {
         placeholder="Email"
         onChangeText={(text) => handleChange("email", text)}
       />
-      {errors.email && <Text>{errors.email}</Text>}
 
       <TextInput
         placeholder="Password"
         secureTextEntry
         onChangeText={(text) => handleChange("password", text)}
       />
-      {errors.password && <Text>{errors.password}</Text>}
+    
 
       <Button title="Login" onPress={handleLogin} />
 
