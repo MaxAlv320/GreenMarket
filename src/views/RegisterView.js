@@ -17,15 +17,21 @@ export default function RegisterView({ navigation }) {
   const { register, loading } = useAuthViewModel();
 
   const handleRegister = async () => {
-    if (!validate()) return;
+    // if (!validate()) return;
 
-    try {
-      await register(values.name, values.email, values.password);
-      alert("Usuario registrado correctamente");
-      navigation.navigate("Login");
-    } catch (error) {
-      alert(error.message);
+    // try {
+    //   await register(values.name, values.email, values.password);
+    //   alert("Usuario registrado correctamente");
+    //   navigation.navigate("Login");
+    // } catch (error) {
+    //   alert(error.message);
+    // }
+    const data = {
+      email: '', 
+      password: '', 
+      rol: ''
     }
+    const response = await api.post('/register', data)
   };
 
   return (
