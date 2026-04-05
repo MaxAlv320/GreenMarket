@@ -1,17 +1,63 @@
-import { FlatList, TextInput, TouchableOpacity, View } from "react-native";
+import React from "react";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from "react-native";
+
 import AuthCard from "../components/AuthCard";
 import BrandLogo from "../components/BrandLogo";
-import { products } from "../helpers/mockData";
 
-export default function MenuView() {
+import { useAuthContext } from "../context/authContext";
+import useStock from "../hooks/useStock";
+
+export default function MenuView({ navigation }) {
+  const { productos, loading, error } = useStock();
+  const { isAdmin } = useAuthContext(); 
+
+  //BOTÓN "+" EN HEADER SOLO ADMIN
+  React.useLayoutEffect(() => {
+    if (isAdmin) {
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AddProduct")}
+            style={{ marginRight: 15 }}
+          >
+            <Text style={{ fontSize: 22, fontWeight: "bold" }}>＋</Text>
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, isAdmin]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
-    <View
-      style={{ flex: 1, backgroundColor: "#F5F5F5", paddingHorizontal: 20 }}
-    >
+    <View style={{ flex: 1, backgroundColor: "#F5F5F5", paddingHorizontal: 20 }}>
+      
+      {/* LOGO */}
       <View style={{ alignItems: "center", marginTop: 40, marginBottom: 20 }}>
         <BrandLogo />
       </View>
 
+      {/* BUSCADOR */}
       <View
         style={{
           backgroundColor: "#D9D9D9",
@@ -22,36 +68,21 @@ export default function MenuView() {
           justifyContent: "center",
         }}
       >
-        <TextInput placeholder="Search products..." />
+        <TextInput placeholder="Buscar productos..." />
       </View>
 
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginBottom: 20,
-        }}
-      >
-        {[1, 2, 3, 4].map((i) => (
-          <View
-            key={i}
-            style={{
-              width: "22%",
-              height: 25,
-              backgroundColor: "#D9D9D9",
-              borderRadius: 15,
-            }}
-          />
-        ))}
-      </View>
-
+      {/* LISTA */}
       <FlatList
-        data={products}
-        keyExtractor={(item) => item.id.toString()}
+        data={productos}
+        keyExtractor={(item) => item._id} // backend usa _id
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
           <View style={{ marginBottom: 15 }}>
-            <AuthCard title={item.name}>
+            <AuthCard title={item.nombreProducto}>
+              
               <View style={{ flexDirection: "row", alignItems: "center" }}>
+                
+                {/* IMAGEN placeholder */}
                 <View
                   style={{
                     width: 50,
@@ -60,40 +91,38 @@ export default function MenuView() {
                     backgroundColor: "#FFF",
                   }}
                 />
+
+                {/* INFO */}
                 <View style={{ flex: 1, marginLeft: 15 }}>
-                  <View
-                    style={{
-                      height: 4,
-                      backgroundColor: "#BBB",
-                      borderRadius: 2,
-                      marginBottom: 6,
-                      width: "90%",
-                    }}
-                  />
-                  <View
-                    style={{
-                      height: 4,
-                      backgroundColor: "#BBB",
-                      borderRadius: 2,
-                      width: "60%",
-                    }}
-                  />
+                  <Text>{item.nombreProducto}</Text>
+                  <Text style={{ color: "#777" }}>${item.precio}</Text>
+                  <Text style={{ color: "#999", fontSize: 12 }}>
+                    Stock: {item.stock}
+                  </Text>
                 </View>
-                <TouchableOpacity
-                  style={{
-                    width: 35,
-                    height: 35,
-                    backgroundColor: "#666",
-                    borderRadius: 6,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <View
-                    style={{ width: 15, height: 3, backgroundColor: "#FFF" }}
-                  />
-                </TouchableOpacity>
+
+                {/* BOTÓN EDIT SOLO ADMIN */}
+                {isAdmin && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.navigate("EditProduct", {
+                        product: item,
+                      })
+                    }
+                    style={{
+                      width: 35,
+                      height: 35,
+                      backgroundColor: "#666",
+                      borderRadius: 6,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text style={{ color: "#FFF" }}>✎</Text>
+                  </TouchableOpacity>
+                )}
               </View>
+
             </AuthCard>
           </View>
         )}

@@ -1,49 +1,58 @@
-import { useEffect, useState } from 'react';
-import { getData, saveData } from '../helpers/StorageService';
-import { products as mockProducts } from '../helpers/mockData';
+import { useCallback, useEffect, useState } from 'react';
+import productService from '../services/productService';
 
-export const useStock = () => {
-  const [items, setItems] = useState([]);
+const useStock = () => {
+  const [productos, setProductos] = useState([]);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState(null);
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      const stored = await getData("products");
-
-      if (stored) {
-        setItems(stored);
-      } else {
-        setItems(mockProducts);
-        await saveData("products", mockProducts);
-      }
-    };
-
-    loadProducts();
+  const fetchProductos = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await productService.getAll();
+      setProductos(data);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const updateStock = async (updatedItems) => {
-    setItems(updatedItems);
-    await saveData("products", updatedItems);
+  useEffect(() => {
+    fetchProductos();
+  }, [fetchProductos]);
+
+  //FUNCIÓN REUTILIZABLE PARA STOCK
+  const updateStock = async (item, delta) => {
+    try {
+      await productService.update(item._id, {
+        stock: item.stock + delta,
+        precio: item.precio, // requerido por backend
+      });
+
+      fetchProductos(); // refresca lista
+    } catch (e) {
+      console.log(e.message);
+    }
   };
 
-  const increaseStock = (id) => {
-    const updated = items.map(item =>
-      item.id === id ? { ...item, stock: item.stock + 1 } : item
-    );
-    updateStock(updated);
-  };
-
-  const decreaseStock = (id) => {
-    const updated = items.map(item =>
-      item.id === id
-        ? { ...item, stock: Math.max(item.stock - 1, 0) }
-        : item
-    );
-    updateStock(updated);
+  // Helpers más claros
+  const increaseStock = (item) => updateStock(item, +1);
+  const decreaseStock = (item) => {
+    if (item.stock <= 0) return;
+    updateStock(item, -1);
   };
 
   return {
-    items,
+    productos,
+    loading,
+    error,
+    refetch: fetchProductos,
+
     increaseStock,
-    decreaseStock
+    decreaseStock,
   };
 };
+
+export default useStock;

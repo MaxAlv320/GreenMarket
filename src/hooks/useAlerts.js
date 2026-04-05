@@ -1,33 +1,41 @@
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
-import { getData } from '../helpers/StorageService';
+import { useEffect, useState } from 'react';
+import productService from '../services/productService';
 
-export const useAlerts = () => {
-  const [alerts, setAlerts] = useState([]);
+const useAlerts = () => {
+  const [alertas, setAlertas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState(null);
 
-  const loadAlerts = async () => {
-    const products = await getData("products");
+  const fetchAlerts = async () => {
+    setLoading(true);
+    try {
+      const data = await productService.getLowStock();
 
-    if (!products) return;
+      const normalized = data.map((p) => ({
+        id: p._id,
+        name: p.nombreProducto,
+        alerta: p.alerta,
+      }));
 
-    const generatedAlerts = [];
+      setAlertas(normalized);
 
-    products.forEach(item => {
-      if (item.stock === 0) {
-        generatedAlerts.push(`Sin stock: ${item.name}`);
-      } else if (item.stock <= 2) {
-        generatedAlerts.push(`Stock bajo: ${item.name}`);
-      }
-    });
-
-    setAlerts(generatedAlerts);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadAlerts();
-    }, [])
-  );
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
 
-  return { alerts };
+  return {
+    alertas,
+    loading,
+    error,
+    refetch: fetchAlerts
+  };
 };
+
+export default useAlerts;

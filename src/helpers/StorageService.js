@@ -24,3 +24,8 @@ export const getData = async (key) => {
   const data = await AsyncStorage.getItem(key);
   return data ? JSON.parse(data) : null;
 };
+
+// export const clearAll = async () => {
+//   await SecureStore.deleteItemAsync("userToken");
+//   await AsyncStorage.clear();
+// };

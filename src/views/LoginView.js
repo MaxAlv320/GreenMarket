@@ -1,50 +1,49 @@
-import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 
-// Componentes Reutilizables que ya definimos
 import BrandLogo from "../components/BrandLogo";
 import LoginForm from "../components/LoginForm";
 import NavButton from "../components/NavButton";
 
-// Hooks de lógica
-import { useAuthViewModel } from "../hooks/useAuthViewModel";
+import { useAuthContext } from "../context/authContext";
 import { useForm } from "../hooks/useForm";
 
 export default function LoginView({ navigation }) {
+  const { login, loginLoading } = useAuthContext();
+
   const { values, errors, handleChange, validate } = useForm({
     email: "",
     password: "",
   });
 
-  const { login, loading } = useAuthViewModel();
-
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <NavButton
-          title="Registro"
-          onPress={() => navigation.navigate("Register")}
-        />
-      ),
-    });
-  }, [navigation]);
-
+  const getErrorMessage = (error) => {
+    return (
+      error?.response?.data?.message ||
+      error?.message ||
+      "Error al iniciar sesión"
+    );
+  };
+  
   const handleLogin = async () => {
-    if (!validate()) return;
+    if (loginLoading) return;
+
+    const isValid = validate();
+    console.log("VALID:", isValid);
+    console.log("VALUES:", values);
+
+    if (!isValid) {
+      console.log("Errores:", errors);
+      return;
+    }
 
     try {
       await login(values.email, values.password);
-      navigation.navigate("Main");
     } catch (error) {
-      alert(error.message);
+      console.log("ERROR LOGIN:", error);
     }
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
-    >
+    <ScrollView contentContainerStyle={styles.container}>
       <BrandLogo />
 
       <LoginForm
@@ -52,9 +51,14 @@ export default function LoginView({ navigation }) {
         password={values.password}
         setEmail={(text) => handleChange("email", text)}
         setPassword={(text) => handleChange("password", text)}
-        onSubmit={handleLogin} // Conectado a la función de arriba
-        loading={loading}
+        onSubmit={handleLogin}
+        loading={loginLoading}
         error={errors.email || errors.password}
+      />
+
+      <NavButton
+        title="Ir a Registro"
+        onPress={() => navigation.navigate("Register")}
       />
     </ScrollView>
   );

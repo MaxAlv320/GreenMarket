@@ -1,11 +1,11 @@
-import { ScrollView, StyleSheet } from "react-native";
+import React from "react";
+import { Alert, ScrollView, StyleSheet } from "react-native";
 
 import BrandLogo from "../components/BrandLogo";
 import RegisterForm from "../components/RegisterForm";
 
-// Hooks
-import { useAuthViewModel } from "../hooks/useAuthViewModel";
 import { useForm } from "../hooks/useForm";
+import authService from "../services/authService";
 
 export default function RegisterView({ navigation }) {
   const { values, errors, handleChange, validate } = useForm({
@@ -14,24 +14,45 @@ export default function RegisterView({ navigation }) {
     password: "",
   });
 
-  const { register, loading } = useAuthViewModel();
+  const [loading, setLoading] = React.useState(false);
+
+  const getErrorMessage = (error) => {
+    return (
+      error?.response?.data?.message ||
+      error?.message ||
+      "Error al registrarse"
+    );
+  };
 
   const handleRegister = async () => {
-    // if (!validate()) return;
+    if (loading) return; // evita doble click
+    if (!validate()) return;
 
-    // try {
-    //   await register(values.name, values.email, values.password);
-    //   alert("Usuario registrado correctamente");
-    //   navigation.navigate("Login");
-    // } catch (error) {
-    //   alert(error.message);
-    // }
-    const data = {
-      email: '', 
-      password: '', 
-      rol: ''
+    setLoading(true);
+
+    try {
+      await authService.register({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      Alert.alert(
+        "Éxito",
+        "Usuario registrado correctamente",
+        [
+          {
+            text: "Ir a login",
+            onPress: () => navigation.replace("Login"),
+          },
+        ]
+      );
+
+    } catch (error) {
+      Alert.alert("Error", getErrorMessage(error));
+    } finally {
+      setLoading(false);
     }
-    const response = await api.post('/register', data)
   };
 
   return (

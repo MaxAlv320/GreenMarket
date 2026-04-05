@@ -1,56 +1,84 @@
 import { useEffect, useState } from 'react';
-import { getData, saveData } from '../helpers/StorageService';
+import authService from "../services/authService";
+import productService from "../services/productService";
 
 export const useProfile = () => {
-  const [user, setUser] = useState(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [branch, setBranch] = useState('');
+  const [nombreNegocio, setNombreNegocio] = useState('');
+  const [descripcion, setDescripcion] = useState('');
+
+  const [umbralStockBajo, setUmbralStockBajo] = useState(0);
+  const [umbralStockMedio, setUmbralStockMedio] = useState(0);
+
+  const [productos, setProductos] = useState([]);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await getData("currentUser");
-
-      if (currentUser) {
-        setUser(currentUser);
-        setName(currentUser.name || '');
-        setEmail(currentUser.email || '');
-        setBranch(currentUser.branch || '');
-      }
-    };
-
-    loadUser();
+    fetchPerfil();
+    fetchProductos();
+    fetchLowStock();
   }, []);
 
-  const saveProfile = async () => {
-    if (!user) return;
+  //Obtener perfil
+  const fetchPerfil = async () => {
+    try {
+      const data = await authService.getPerfil();
 
-    const updatedUser = {
-      ...user,
-      name,
-      email,
-      branch
-    };
+      setNombreNegocio(data.nombreNegocio || '');
+      setDescripcion(data.descripcion || '');
 
-    const users = (await getData("users")) || [];
+      setUmbralStockBajo(data.umbralStockBajo || 0);
+      setUmbralStockMedio(data.umbralStockMedio || 0);
 
-    const updatedUsers = users.map(u =>
-      u.email === user.email ? updatedUser : u
-    );
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
-    await saveData("users", updatedUsers);
-    await saveData("currentUser", updatedUser);
+  //Actualizar perfil
+  const handleUpdatePerfil = async () => {
+    try {
+      await authService.updatePerfil({
+        nombreNegocio,
+        descripcion
+      });
 
-    alert("Perfil actualizado");
+      alert("Perfil actualizado");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  //Productos
+  const fetchProductos = async () => {
+    try {
+      const data = await productService.getAll();
+      setProductos(data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const fetchLowStock = async () => {
+      try {
+        const data = await productService.getLowStock();
+        console.log(data);
+      } catch (error) {
+          console.log(error.message);
+      }
   };
 
   return {
-    name,
-    email,
-    branch,
-    setName,
-    setEmail,
-    setBranch,
-    saveProfile
+    nombreNegocio,
+    descripcion,
+    umbralStockBajo,
+    umbralStockMedio,
+
+    setNombreNegocio,
+    setDescripcion,
+    setUmbralStockBajo,
+    setUmbralStockMedio,
+
+    handleUpdatePerfil,
+
+    productos
   };
 };
