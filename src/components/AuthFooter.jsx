@@ -1,39 +1,47 @@
-import { StyleSheet, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function AuthFooter() {
   return (
-    <View style={styles.container}>
-      {/* Contenedor de los puntos (dots) */}
-      <View style={styles.dots}>
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
+    <View style={styles.socialContainer}>
+      <View style={styles.lineRow}>
+        <Text style={styles.loginWithText}>login with</Text>
+        <View style={styles.line} />
       </View>
-      <View style={styles.line} />
+      <View style={styles.iconRow}>
+        <MaterialCommunityIcons
+          name="google"
+          size={40}
+          color="white"
+          style={styles.socialIcon}
+        />
+        <MaterialCommunityIcons
+          name="instagram"
+          size={40}
+          color="white"
+          style={styles.socialIcon}
+        />
+        <MaterialCommunityIcons
+          name="facebook"
+          size={40}
+          color="white"
+          style={styles.socialIcon}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 10,
-    alignItems: "center",
-  },
-  dots: {
+  socialContainer: { marginTop: 25, alignItems: "center", width: "100%" },
+  lineRow: {
     flexDirection: "row",
-    justifyContent: "center",
-    marginBottom: 10,
+    alignItems: "center",
+    marginBottom: 15,
+    width: "100%",
   },
-  dot: {
-    width: 10,
-    height: 10,
-    backgroundColor: "#999",
-    borderRadius: 5,
-    marginHorizontal: 3,
-  },
-  line: {
-    height: 2,
-    backgroundColor: "#bbb",
-    width: "80%",
-  },
+  loginWithText: { color: "#DDE6A5", fontSize: 14, marginRight: 10 },
+  line: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.3)" },
+  iconRow: { flexDirection: "row", gap: 20, justifyContent: "center" },
+  socialIcon: { opacity: 0.9 },
 });

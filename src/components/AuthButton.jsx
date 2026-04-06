@@ -11,10 +11,10 @@ export default function AuthButton({ text, onPress, loading }) {
       onPress={onPress}
       disabled={loading}
       style={styles.button}
-      activeOpacity={0.7}
+      activeOpacity={0.8}
     >
       {loading ? (
-        <ActivityIndicator color="#fff" />
+        <ActivityIndicator color="#2F4F4F" />
       ) : (
         <Text style={styles.buttonText}>{text}</Text>
       )}
@@ -24,15 +24,17 @@ export default function AuthButton({ text, onPress, loading }) {
 
 const styles = StyleSheet.create({
   button: {
-    padding: 12,
+    padding: 15,
     borderRadius: 25,
-    backgroundColor: "#333",
+    backgroundColor: "#BADE7C", // Verde Lima
     alignItems: "center",
     justifyContent: "center",
     marginTop: 10,
+    elevation: 3,
   },
   buttonText: {
-    color: "#fff",
+    color: "#2F4F4F",
     fontWeight: "bold",
+    fontSize: 18,
   },
 });

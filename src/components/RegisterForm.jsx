@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from "react-native"; // Importamos Text para el error
+import { StyleSheet, Text } from "react-native";
 import AuthButton from "./AuthButton";
 import AuthCard from "./AuthCard";
 import AuthFooter from "./AuthFooter";
@@ -16,23 +16,32 @@ export default function RegisterForm({
   error,
 }) {
   return (
-    <AuthCard title="REGISTER">
-      <AuthInput placeholder="Nombre" value={name} onChangeText={setName} />
+    <AuthCard title="REGISTER" subTitle="Create your account" showBack={true}>
       <AuthInput
-        placeholder="Email"
+        placeholder="Full Name"
+        value={name}
+        onChangeText={setName}
+        icon="account-outline"
+      />
+
+      <AuthInput
+        placeholder="User/E-mail"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+        icon="account"
       />
 
-      {/* Input de Password */}
       <AuthInput
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        icon="lock"
       />
-      <AuthButton text="Registrarse" onPress={onSubmit} loading={loading} />
+
+      <AuthButton text="CREATE ACCOUNT" onPress={onSubmit} loading={loading} />
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
@@ -43,9 +52,10 @@ export default function RegisterForm({
 
 const styles = StyleSheet.create({
   errorText: {
-    color: "red",
+    color: "#FF6B6B",
     fontSize: 12,
     textAlign: "center",
     marginTop: 10,
+    fontWeight: "600",
   },
 });
