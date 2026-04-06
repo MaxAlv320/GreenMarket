@@ -1,3 +1,5 @@
+//La logica de esta pantalla tiene que ir acorde con la funcion {updateProduct} de useProductForm el cual se modifico para que tomara el negocioId
+//Unicamente editar precio y stock, los demas datos son estaticos.
 import { useEffect } from "react";
 import {
   Image,

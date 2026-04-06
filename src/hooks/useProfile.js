@@ -3,82 +3,52 @@ import authService from "../services/authService";
 import productService from "../services/productService";
 
 export const useProfile = () => {
-  const [nombreNegocio, setNombreNegocio] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-
-  const [umbralStockBajo, setUmbralStockBajo] = useState(0);
-  const [umbralStockMedio, setUmbralStockMedio] = useState(0);
+  const [perfil, setPerfil] = useState({
+    nombreNegocio: '',
+    descripcion: '',
+    umbralStockBajo: 0,
+    umbralStockMedio: 0,
+  });
 
   const [productos, setProductos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchPerfil();
-    fetchProductos();
-    fetchLowStock();
+    loadData();
   }, []);
 
-  //Obtener perfil
-  const fetchPerfil = async () => {
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
+
     try {
-      const data = await authService.getPerfil();
+      const [perfilData, productosData] = await Promise.all([
+        authService.getPerfil(),
+        productService.getAll(),
+      ]);
 
-      setNombreNegocio(data.nombreNegocio || '');
-      setDescripcion(data.descripcion || '');
-
-      setUmbralStockBajo(data.umbralStockBajo || 0);
-      setUmbralStockMedio(data.umbralStockMedio || 0);
-
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  //Actualizar perfil
-  const handleUpdatePerfil = async () => {
-    try {
-      await authService.updatePerfil({
-        nombreNegocio,
-        descripcion
+      setPerfil({
+        nombreNegocio: perfilData.nombreNegocio || '',
+        descripcion: perfilData.descripcion || '',
+        umbralStockBajo: perfilData.umbralStockBajo || 0,
+        umbralStockMedio: perfilData.umbralStockMedio || 0,
       });
 
-      alert("Perfil actualizado");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
+      setProductos(productosData);
 
-  //Productos
-  const fetchProductos = async () => {
-    try {
-      const data = await productService.getAll();
-      setProductos(data);
-    } catch (error) {
-      console.log(error.message);
+    } catch (e) {
+      setError(e?.response?.data?.message ?? 'Error al cargar perfil');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const fetchLowStock = async () => {
-      try {
-        const data = await productService.getLowStock();
-        console.log(data);
-      } catch (error) {
-          console.log(error.message);
-      }
   };
 
   return {
-    nombreNegocio,
-    descripcion,
-    umbralStockBajo,
-    umbralStockMedio,
-
-    setNombreNegocio,
-    setDescripcion,
-    setUmbralStockBajo,
-    setUmbralStockMedio,
-
-    handleUpdatePerfil,
-
-    productos
+    perfil,
+    productos,
+    loading,
+    error,
+    refetch: loadData,
   };
 };

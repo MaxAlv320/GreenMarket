@@ -1,3 +1,4 @@
+//Ya no se utiliza useStock, se utiliza useProductForm {deleteProduct} para el boton de borrar
 import {
   ActivityIndicator,
   ImageBackground,

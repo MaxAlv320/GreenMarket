@@ -1,3 +1,4 @@
+//Qque vaya acorde con el hook useAlerts
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   ActivityIndicator,

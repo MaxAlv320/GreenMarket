@@ -1,3 +1,4 @@
+//Se cambian parametros debido a que se modifico el useStock
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   ActivityIndicator,
