@@ -13,6 +13,8 @@ import CategoryChip from "../components/CategoryChip";
 import FormInput from "../components/FormInput";
 import useProductForm from "../hooks/useProductForm";
 
+const DEFAULT_IMAGE = require("../assets/default-product.png");
+
 export default function EditProductView({ route, navigation }) {
   const product = route.params?.product;
 
@@ -26,14 +28,16 @@ export default function EditProductView({ route, navigation }) {
     if (product) loadProduct(product);
   }, [product]);
 
-  // Manejador de guardado
   const handleSave = async () => {
-    // IMPORTANTE: Pasamos el objeto 'product' completo al hook
-    // para que pueda extraer product._id y product.negocioId
     await updateProduct(product);
   };
 
   if (!product) return null;
+
+  const imageSource =
+    product.imagen && product.imagen.trim() !== ""
+      ? { uri: product.imagen }
+      : DEFAULT_IMAGE;
 
   return (
     <ImageBackground
@@ -51,7 +55,6 @@ export default function EditProductView({ route, navigation }) {
               </Text>
             </View>
 
-            {/* CAMPOS ESTÁTICOS (Solo lectura) */}
             <FormInput
               placeholder="Name"
               value={form.nombreProducto}
@@ -67,7 +70,6 @@ export default function EditProductView({ route, navigation }) {
               style={styles.disabledInput}
             />
 
-            {/* CAMPOS EDITABLES */}
             <View style={styles.centerRow}>
               <Text style={styles.label}>STOCK DISPONIBLE</Text>
               <FormInput
@@ -90,21 +92,18 @@ export default function EditProductView({ route, navigation }) {
               />
             </View>
 
-            {/* CATEGORÍA (Visual, no editable según requerimiento) */}
             <Text style={styles.sectionTitle}>Category</Text>
             <View style={styles.chipGrid}>
               <CategoryChip
                 label={form.categoria}
                 isSelected={true}
-                onPress={() => {}} // Deshabilitado
+                onPress={() => {}}
               />
             </View>
 
             <View style={styles.imageBox}>
               <Image
-                source={{
-                  uri: product.imagen || "https://via.placeholder.com/150",
-                }}
+                source={imageSource}
                 style={styles.img}
                 resizeMode="contain"
               />

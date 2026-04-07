@@ -1,8 +1,9 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+const DEFAULT_IMAGE = require("../assets/default-product.png");
+
 export default function AlertCard({ item }) {
-  // Determinar color según el stock o tipo de alerta
   const getColors = () => {
     if (item.stock === 0)
       return { main: "#FF4C4C", icon: "alert-octagon", label: "Crítico" };
@@ -13,23 +14,26 @@ export default function AlertCard({ item }) {
 
   const { main, icon } = getColors();
 
+  const imageSource =
+    item.imagen && item.imagen.trim() !== ""
+      ? { uri: item.imagen }
+      : DEFAULT_IMAGE;
+
   return (
     <View style={styles.container}>
-      {/* Icono flotante superior derecho */}
       <View style={[styles.floatingIcon, { backgroundColor: main }]}>
         <MaterialCommunityIcons name={icon} size={24} color="white" />
       </View>
 
       <View style={styles.card}>
         <View style={styles.content}>
-          <Image source={{ uri: item.imagen }} style={styles.img} />
+          <Image source={imageSource} style={styles.img} />
           <View style={styles.textContainer}>
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.description}>{item.alerta}</Text>
           </View>
         </View>
 
-        {/* Barra inferior de estado */}
         <View style={[styles.footerBar, { backgroundColor: main }]}>
           <Text style={styles.footerText}>{item.name} Alert</Text>
           <TouchableOpacity style={styles.btnEnterado}>

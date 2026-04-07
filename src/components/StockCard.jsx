@@ -1,14 +1,20 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+const DEFAULT_IMAGE = require("../assets/default-product.png");
+
 export default function StockCard({ item, onDelete }) {
-  // Color dinámico según el stock: Púrpura si es bajo (<10), Verde si es normal
   const statusColor = item.stock < 10 ? "#C8A2C8" : "#DDE6A5";
+
+  const imageSource =
+    item.imagen && item.imagen.trim() !== ""
+      ? { uri: item.imagen }
+      : DEFAULT_IMAGE;
 
   return (
     <View style={styles.cardContainer}>
       <View style={styles.mainInfo}>
-        <Image source={{ uri: item.imagen }} style={styles.img} />
+        <Image source={imageSource} style={styles.img} />
 
         <View style={styles.details}>
           <Text style={styles.name}>{item.nombreProducto?.toUpperCase()}</Text>
@@ -33,12 +39,10 @@ export default function StockCard({ item, onDelete }) {
         </View>
       </View>
 
-      {/* Barra de controles inferior refactorizada */}
       <View style={[styles.controlBar, { backgroundColor: statusColor }]}>
         <Text style={styles.controlText}>ELIMINAR PRODUCTO DEL INVENTARIO</Text>
 
         <View style={styles.btnRow}>
-          {/* Botón único de eliminar usando la papelera */}
           <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
             <MaterialCommunityIcons
               name="trash-can-outline"
@@ -99,7 +103,7 @@ const styles = StyleSheet.create({
   controlText: { fontSize: 9, fontWeight: "bold", color: "#333" },
   btnRow: { flexDirection: "row", alignItems: "center" },
   deleteBtn: {
-    backgroundColor: "#B71C1C", // Rojo para eliminar
+    backgroundColor: "#B71C1C",
     width: 35,
     height: 24,
     borderRadius: 8,

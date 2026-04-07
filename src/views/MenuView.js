@@ -23,11 +23,9 @@ export default function MenuView({ navigation }) {
   const { productos, loading, refetch } = useStock();
   const { isAdmin } = useAuthContext();
 
-  // Estados para búsqueda y filtrado
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
 
-  // Filtro lógico de productos (Nombre + Categoría)
   const filteredProducts = useMemo(() => {
     return productos.filter((p) => {
       const matchSearch = p.nombreProducto
@@ -67,7 +65,6 @@ export default function MenuView({ navigation }) {
           />
         </View>
 
-        {/* Chips de Categorías */}
         <View style={styles.chipRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {SECTIONS.map((cat, idx) => (
@@ -85,7 +82,6 @@ export default function MenuView({ navigation }) {
           </ScrollView>
         </View>
 
-        {/* Lista de Productos */}
         <FlatList
           data={filteredProducts}
           keyExtractor={(item) => item._id}
@@ -94,7 +90,6 @@ export default function MenuView({ navigation }) {
             <ProductCard
               item={item}
               isAdmin={isAdmin}
-              // Pasamos el objeto 'product' completo para evitar el error de undefined
               onEdit={() =>
                 navigation.navigate("EditProduct", { product: item })
               }

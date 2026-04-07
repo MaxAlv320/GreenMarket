@@ -1,10 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+const DEFAULT_IMAGE = require("../assets/default-product.png");
+
 export default function ProductCard({ item, isAdmin, onEdit }) {
+  const imageSource =
+    item.imagen && item.imagen.trim() !== ""
+      ? { uri: item.imagen }
+      : DEFAULT_IMAGE;
+
   return (
     <View style={styles.card}>
-      {/* Barra lateral decorativa */}
       <View
         style={[
           styles.indicator,
@@ -13,13 +19,8 @@ export default function ProductCard({ item, isAdmin, onEdit }) {
       />
 
       <View style={styles.container}>
-        {/* Imagen del producto */}
-        <Image
-          source={{ uri: item.imagen || "https://via.placeholder.com/150" }}
-          style={styles.productImage}
-        />
+        <Image source={imageSource} style={styles.productImage} />
 
-        {/* Información central */}
         <View style={styles.info}>
           <Text style={styles.name}>{item.nombreProducto}</Text>
           <Text style={styles.desc} numberOfLines={2}>
@@ -35,12 +36,10 @@ export default function ProductCard({ item, isAdmin, onEdit }) {
           </View>
         </View>
 
-        {/* Cuadro de Stock a la derecha */}
         <View style={styles.stockBox}>
           <Text style={styles.stockText}>{item.stock}</Text>
         </View>
 
-        {/* Botón flotante de edición para Admin */}
         {isAdmin && (
           <TouchableOpacity style={styles.editBtn} onPress={onEdit}>
             <MaterialCommunityIcons name="pencil" size={14} color="white" />
