@@ -1,32 +1,18 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   ImageBackground,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
-import StatRow from "../components/StatRow";
 import { useAuthContext } from "../context/authContext";
 import { useProfile } from "../hooks/useProfile";
 
 export default function ViewProfile() {
-  const { logout } = useAuthContext();
-  const {
-    nombreNegocio,
-    descripcion,
-    umbralStockBajo,
-    umbralStockMedio,
-    productos,
-  } = useProfile();
-
-  const bajo = productos.filter((p) => p.stock < umbralStockBajo).length;
-  const medio = productos.filter(
-    (p) => p.stock >= umbralStockBajo && p.stock < umbralStockMedio,
-  ).length;
-  const alto = productos.filter((p) => p.stock >= umbralStockMedio).length;
+  const { logout, user } = useAuthContext();
+  const { nombreNegocio, descripcion } = useProfile();
 
   return (
     <ImageBackground
@@ -39,7 +25,7 @@ export default function ViewProfile() {
         <View style={styles.profileHeader}>
           <View style={styles.avatarCircle}>
             <MaterialCommunityIcons
-              name="cart-check"
+              name="cart-variant"
               size={35}
               color="#3A5A40"
             />
@@ -48,9 +34,7 @@ export default function ViewProfile() {
             <Text style={styles.bizName}>
               {nombreNegocio || "Abarrotes LETY"}
             </Text>
-            <Text style={styles.bizDesc}>
-              {descripcion || "INVENTORY MANAGEMENT AND STATISTICS"}
-            </Text>
+            <Text style={styles.bizDesc}>{descripcion || "About"}</Text>
           </View>
           <TouchableOpacity>
             <MaterialCommunityIcons
@@ -61,18 +45,20 @@ export default function ViewProfile() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.statsBox}>
-          <Text style={styles.statsTitle}>STATS</Text>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <StatRow
-              label="TIENES PRODUCTOS DIFERENTES"
-              value={productos.length}
-            />
-            <StatRow label="PRODUCTOS CON INVENTARIO BAJO" value={bajo} />
-            <StatRow label="PRODUCTOS CON INVENTARIO MEDIO" value={medio} />
-            <StatRow label="PRODUCTOS CON INVENTARIO ALTO" value={alto} />
-            <StatRow label="GRAFICAS" />
-          </ScrollView>
+        <View style={styles.infoBox}>
+          <Text style={styles.infoTitle}>Information</Text>
+
+          <View style={styles.inputStatic}>
+            <Text style={styles.inputText}>
+              {user?.email || "correo@gmail.com"}
+            </Text>
+          </View>
+
+          <View style={styles.inputStatic}>
+            <Text style={styles.inputText}>
+              {user?.username || "Usuario Lety"}
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
@@ -87,61 +73,83 @@ const styles = StyleSheet.create({
   bg: { flex: 1 },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.4)",
     paddingHorizontal: 25,
     paddingTop: 50,
   },
   topBrand: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#FFF",
     textAlign: "center",
-    marginBottom: 25,
+    marginBottom: 30,
+    letterSpacing: 1,
   },
   profileHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 40,
   },
   avatarCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     backgroundColor: "#FFF",
     justifyContent: "center",
     alignItems: "center",
+    elevation: 5,
   },
   profileText: { flex: 1, marginLeft: 15 },
-  bizName: { fontSize: 18, fontWeight: "bold", color: "#FFF" },
-  bizDesc: { fontSize: 9, color: "#DDD", marginTop: 2 },
-  statsBox: {
-    backgroundColor: "rgba(0,0,0,0.6)",
+  bizName: { fontSize: 22, fontWeight: "bold", color: "#FFF" },
+  bizDesc: { fontSize: 14, color: "#DDD", marginTop: 2 },
+
+  infoBox: {
+    backgroundColor: "rgba(0,0,0,0.5)",
     borderRadius: 20,
-    padding: 20,
-    flex: 0.75,
+    padding: 25,
+    height: 250,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+    alignItems: "center",
+  },
+  infoTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFF",
+    marginBottom: 25,
+    letterSpacing: 5,
+  },
+  inputStatic: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    width: "100%",
+    height: 45,
+    borderRadius: 10,
+    justifyContent: "center",
+    paddingHorizontal: 15,
+    marginBottom: 15,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
   },
-  statsTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFF",
+  inputText: {
+    color: "#EEE",
+    fontSize: 14,
     textAlign: "center",
-    marginBottom: 20,
-    letterSpacing: 4,
   },
+
   logoutBtn: {
-    backgroundColor: "#C83232",
-    paddingVertical: 14,
+    backgroundColor: "#C62828",
+    paddingVertical: 12,
     borderRadius: 25,
-    marginTop: 25,
-    width: "70%",
+    marginTop: "auto",
+    marginBottom: 40,
+    width: "80%",
     alignSelf: "center",
   },
   logoutTxt: {
     color: "#FFF",
     fontWeight: "bold",
     textAlign: "center",
-    fontSize: 16,
+    fontSize: 18,
+    letterSpacing: 1,
   },
 });

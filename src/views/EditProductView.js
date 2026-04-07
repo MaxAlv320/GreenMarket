@@ -1,7 +1,6 @@
-//La logica de esta pantalla tiene que ir acorde con la funcion {updateProduct} de useProductForm el cual se modifico para que tomara el negocioId
-//Unicamente editar precio y stock, los demas datos son estaticos.
 import { useEffect } from "react";
 import {
+  Alert,
   Image,
   ImageBackground,
   ScrollView,
@@ -15,21 +14,26 @@ import FormInput from "../components/FormInput";
 import useProductForm from "../hooks/useProductForm";
 
 export default function EditProductView({ route, navigation }) {
-  const product = route.params?.product; // Solución al error TypeError
+  const product = route.params?.product;
 
   const { form, loading, error, handleChange, loadProduct, updateProduct } =
-    useProductForm(() => navigation.goBack());
+    useProductForm(() => {
+      Alert.alert("Éxito", "Producto actualizado correctamente");
+      navigation.goBack();
+    });
 
   useEffect(() => {
     if (product) loadProduct(product);
   }, [product]);
 
-  if (!product)
-    return (
-      <View style={styles.bg}>
-        <Text style={{ color: "#FFF" }}>Selecciona un producto</Text>
-      </View>
-    );
+  // Manejador de guardado
+  const handleSave = async () => {
+    // IMPORTANTE: Pasamos el objeto 'product' completo al hook
+    // para que pueda extraer product._id y product.negocioId
+    await updateProduct(product);
+  };
+
+  if (!product) return null;
 
   return (
     <ImageBackground
@@ -38,61 +42,62 @@ export default function EditProductView({ route, navigation }) {
     >
       <View style={styles.overlay}>
         <Text style={styles.brandTitle}>GREEN MARKET</Text>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.mainCard}>
             <View style={styles.banner}>
               <Text style={styles.bannerTitle}>EDIT PRODUCT</Text>
               <Text style={styles.bannerSub}>
-                Enter the information of your product
+                Unicamente puedes editar Precio y Stock
               </Text>
             </View>
 
+            {/* CAMPOS ESTÁTICOS (Solo lectura) */}
             <FormInput
               placeholder="Name"
               value={form.nombreProducto}
-              onChangeText={(v) => handleChange("nombreProducto", v)}
+              editable={false}
+              style={styles.disabledInput}
             />
+
             <FormInput
               placeholder="Description"
               multiline
               value={form.descripcion}
-              onChangeText={(v) => handleChange("descripcion", v)}
-            />
-            <FormInput
-              placeholder="Productor"
-              value={form.productor}
-              onChangeText={(v) => handleChange("productor", v)}
+              editable={false}
+              style={styles.disabledInput}
             />
 
+            {/* CAMPOS EDITABLES */}
             <View style={styles.centerRow}>
+              <Text style={styles.label}>STOCK DISPONIBLE</Text>
               <FormInput
                 placeholder="Stock"
                 keyboardType="numeric"
                 style={styles.halfInput}
-                value={String(form.stock)}
+                value={form.stock}
                 onChangeText={(v) => handleChange("stock", v)}
               />
             </View>
+
             <View style={styles.centerRow}>
+              <Text style={styles.label}>PRECIO UNITARIO</Text>
               <FormInput
                 placeholder="Price"
                 keyboardType="numeric"
                 style={[styles.halfInput, { backgroundColor: "#E8F5E9" }]}
-                value={String(form.precio)}
+                value={form.precio}
                 onChangeText={(v) => handleChange("precio", v)}
               />
             </View>
 
-            <Text style={styles.sectionTitle}>Select Category</Text>
+            {/* CATEGORÍA (Visual, no editable según requerimiento) */}
+            <Text style={styles.sectionTitle}>Category</Text>
             <View style={styles.chipGrid}>
-              {["Food", "Cleaning", "Drinks", "Other"].map((cat) => (
-                <CategoryChip
-                  key={cat}
-                  label={cat}
-                  isSelected={form.categoria === cat}
-                  onPress={() => handleChange("categoria", cat)}
-                />
-              ))}
+              <CategoryChip
+                label={form.categoria}
+                isSelected={true}
+                onPress={() => {}} // Deshabilitado
+              />
             </View>
 
             <View style={styles.imageBox}>
@@ -105,12 +110,14 @@ export default function EditProductView({ route, navigation }) {
               />
             </View>
 
+            {error && <Text style={styles.errorText}>{error}</Text>}
+
             <View style={styles.actionRow}>
               <ActionButton
                 label={loading ? "SAVING..." : "SAVE CHANGES"}
                 color="#C5E1A5"
                 style={{ width: "48%" }}
-                onPress={() => updateProduct(product._id)}
+                onPress={handleSave}
               />
               <ActionButton
                 label="DISCARD"
@@ -156,19 +163,22 @@ const styles = StyleSheet.create({
   },
   bannerTitle: { fontSize: 20, fontWeight: "bold" },
   bannerSub: { fontSize: 11 },
-  centerRow: { width: "100%", alignItems: "center" },
-  halfInput: { width: "45%" },
+  centerRow: { width: "100%", alignItems: "center", marginBottom: 10 },
+  label: { color: "#FFF", fontSize: 10, fontWeight: "bold", marginBottom: 5 },
+  halfInput: { width: "60%", textAlign: "center" },
+  disabledInput: { backgroundColor: "#f0f0f0", opacity: 0.7 },
   sectionTitle: {
     color: "#FFF",
     fontWeight: "bold",
     marginTop: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#FFF",
-    width: "65%",
+    width: "40%",
+    alignSelf: "center",
+    textAlign: "center",
   },
   chipGrid: {
     flexDirection: "row",
-    flexWrap: "wrap",
     justifyContent: "center",
     marginTop: 10,
   },
@@ -186,5 +196,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 25,
+  },
+  errorText: {
+    color: "#FFCDD2",
+    textAlign: "center",
+    marginTop: 10,
+    fontWeight: "bold",
   },
 });

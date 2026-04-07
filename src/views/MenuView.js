@@ -1,9 +1,10 @@
-//Se cambian parametros debido a que se modifico el useStock
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   ImageBackground,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -16,20 +17,32 @@ import ProductCard from "../components/ProductCard";
 import { useAuthContext } from "../context/authContext";
 import useStock from "../hooks/useStock";
 
-const SECTIONS = ["section 7", "food", "drinks", "section 5"];
+const SECTIONS = ["all", "food", "drinks", "cleaning", "other"];
 
 export default function MenuView({ navigation }) {
-  const { productos, loading } = useStock();
+  const { productos, loading, refetch } = useStock();
   const { isAdmin } = useAuthContext();
 
-  if (loading) {
+  // Estados para búsqueda y filtrado
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  // Filtro lógico de productos (Nombre + Categoría)
+  const filteredProducts = useMemo(() => {
+    return productos.filter((p) => {
+      const matchSearch = p.nombreProducto
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+      const matchCategory =
+        activeCategory === "all" ||
+        p.categoria?.toLowerCase() === activeCategory;
+      return matchSearch && matchCategory;
+    });
+  }, [search, activeCategory, productos]);
+
+  if (loading && productos.length === 0) {
     return (
-      <View
-        style={[
-          styles.fullScreen,
-          { justifyContent: "center", backgroundColor: "#1A1A1A" },
-        ]}
-      >
+      <View style={[styles.fullScreen, styles.center]}>
         <ActivityIndicator size="large" color="#BADE7C" />
       </View>
     );
@@ -43,44 +56,64 @@ export default function MenuView({ navigation }) {
       <View style={styles.mainOverlay}>
         <Text style={styles.titleStyle}>GREEN MARKET</Text>
 
+        {/* Buscador */}
         <View style={styles.searchBox}>
           <MaterialCommunityIcons name="magnify" size={22} color="#999" />
-          <TextInput placeholder="Search" style={styles.searchInput} />
+          <TextInput
+            placeholder="Search products..."
+            style={styles.searchInput}
+            value={search}
+            onChangeText={setSearch}
+          />
         </View>
 
+        {/* Chips de Categorías */}
         <View style={styles.chipRow}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {SECTIONS.map((item, idx) => (
-              <View key={idx} style={styles.chipItem}>
-                <Text style={styles.chipText}>{item}</Text>
-              </View>
+            {SECTIONS.map((cat, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={[
+                  styles.chipItem,
+                  activeCategory === cat && styles.chipActive,
+                ]}
+                onPress={() => setActiveCategory(cat)}
+              >
+                <Text style={styles.chipText}>{cat.toUpperCase()}</Text>
+              </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.arrowBtn}>
-              <MaterialCommunityIcons
-                name="chevron-down"
-                size={20}
-                color="white"
-              />
-            </TouchableOpacity>
           </ScrollView>
         </View>
 
+        {/* Lista de Productos */}
         <FlatList
-          data={productos}
+          data={filteredProducts}
           keyExtractor={(item) => item._id}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <ProductCard
               item={item}
               isAdmin={isAdmin}
+              // Pasamos el objeto 'product' completo para evitar el error de undefined
               onEdit={() =>
                 navigation.navigate("EditProduct", { product: item })
               }
             />
           )}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={refetch}
+              tintColor="#FFF"
+            />
+          }
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>No products found</Text>
+          }
         />
 
+        {/* Botón Flotante para Admin */}
         {isAdmin && (
           <TouchableOpacity
             style={styles.floatBtn}
@@ -96,6 +129,11 @@ export default function MenuView({ navigation }) {
 
 const styles = StyleSheet.create({
   fullScreen: { flex: 1 },
+  center: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1A1A1A",
+  },
   mainOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
@@ -123,21 +161,24 @@ const styles = StyleSheet.create({
   chipRow: { marginBottom: 20 },
   chipItem: {
     backgroundColor: "rgba(255,255,255,0.2)",
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 20,
     marginRight: 8,
     borderWidth: 1,
-    borderColor: "#FFF",
+    borderColor: "rgba(255,255,255,0.5)",
   },
-  chipText: { color: "#FFF", fontSize: 12, fontWeight: "500" },
-  arrowBtn: {
-    backgroundColor: "rgba(255,255,255,0.3)",
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    justifyContent: "center",
-    alignItems: "center",
+  chipActive: {
+    backgroundColor: "#BADE7C",
+    borderColor: "#BADE7C",
+  },
+  chipText: { color: "#FFF", fontSize: 11, fontWeight: "bold" },
+  listContent: { paddingBottom: 100 },
+  emptyText: {
+    color: "#FFF",
+    textAlign: "center",
+    marginTop: 50,
+    opacity: 0.7,
   },
   floatBtn: {
     position: "absolute",
@@ -150,5 +191,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     elevation: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
 });

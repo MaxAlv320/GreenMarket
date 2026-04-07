@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import productService from '../services/productService';
+import { useEffect, useState } from "react";
+import productService from "../services/productService";
 
 const useAlerts = () => {
   const [alertas, setAlertas] = useState([]);
@@ -17,13 +17,12 @@ const useAlerts = () => {
         id: p._id,
         name: p.nombreProducto,
         alerta: p.alerta,
-        nivel: p.nivelStock, // 👈 clave para colores (bajo, medio, etc.)
+        nivel: p.nivelStock,
       }));
 
       setAlertas(normalized);
-
     } catch (e) {
-      setError(e?.response?.data?.message ?? 'Error al obtener alertas');
+      setError(e?.response?.data?.message ?? "Error al obtener alertas");
     } finally {
       setLoading(false);
     }

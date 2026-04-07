@@ -1,26 +1,52 @@
-//Ya no se utiliza useStock, se utiliza useProductForm {deleteProduct} para el boton de borrar
 import {
   ActivityIndicator,
+  Alert,
   ImageBackground,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import StockCard from "../components/StockCard";
+
+// Hooks
+import useProductForm from "../hooks/useProductForm";
 import useStock from "../hooks/useStock";
 
-export default function ViewStock({ navigation }) {
-  const { productos, increaseStock, decreaseStock, loading } = useStock();
+// Componentes
+import StockCard from "../components/StockCard";
 
-  if (loading)
-    return (
-      <ActivityIndicator
-        size="large"
-        style={{ flex: 1, backgroundColor: "#1A1A1A" }}
-      />
+export default function ViewStock({ navigation }) {
+  const { productos, loading, refetch } = useStock();
+
+  // Hook para eliminar productos
+  const { deleteProduct } = useProductForm(() => {
+    if (refetch) refetch();
+  });
+
+  const confirmDelete = (id, nombre) => {
+    Alert.alert(
+      "Eliminar Producto",
+      `¿Estás seguro de que deseas eliminar "${nombre}"?`,
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Eliminar",
+          style: "destructive",
+          onPress: () => deleteProduct(id),
+        },
+      ],
     );
+  };
+
+  if (loading && productos.length === 0) {
+    return (
+      <View style={[styles.bg, styles.center]}>
+        <ActivityIndicator size="large" color="#BADE7C" />
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -29,6 +55,7 @@ export default function ViewStock({ navigation }) {
     >
       <View style={styles.overlay}>
         <Text style={styles.brand}>GREEN MARKET</Text>
+
         <View style={styles.topButtons}>
           <TouchableOpacity
             style={styles.outlineBtn}
@@ -36,11 +63,11 @@ export default function ViewStock({ navigation }) {
           >
             <Text style={styles.btnText}>AGREGAR PRODUCTO</Text>
           </TouchableOpacity>
-          {/* Evitamos el error pasando el primer producto o manejando una selección */}
+
           <TouchableOpacity
             style={styles.outlineBtn}
             onPress={() =>
-              productos[0] &&
+              productos.length > 0 &&
               navigation.navigate("EditProduct", { product: productos[0] })
             }
           >
@@ -48,21 +75,49 @@ export default function ViewStock({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
-          {productos.map((item) => (
-            <TouchableOpacity
-              key={item._id}
-              onPress={() =>
-                navigation.navigate("EditProduct", { product: item })
-              }
-            >
-              <StockCard
-                item={item}
-                onIncrease={() => increaseStock(item)}
-                onDecrease={() => decreaseStock(item)}
-              />
-            </TouchableOpacity>
-          ))}
+        <Text style={styles.subInstruction}>
+          Desliza hacia abajo para actualizar la lista
+        </Text>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 30 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading}
+              onRefresh={refetch}
+              tintColor="#BADE7C"
+              colors={["#BADE7C"]}
+            />
+          }
+        >
+          {productos.length === 0 ? (
+            <Text style={styles.emptyText}>
+              No hay productos. Desliza hacia abajo para recargar.
+            </Text>
+          ) : (
+            productos.map((item) => (
+              <TouchableOpacity
+                key={item._id}
+                activeOpacity={0.8}
+                onPress={() =>
+                  navigation.navigate("EditProduct", { product: item })
+                }
+              >
+                <StockCard
+                  item={item}
+                  onDelete={() => confirmDelete(item._id, item.nombreProducto)}
+                />
+              </TouchableOpacity>
+            ))
+          )}
+
+          <TouchableOpacity
+            style={styles.saveBtn}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.saveText}>VOLVER</Text>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </ImageBackground>
@@ -71,9 +126,14 @@ export default function ViewStock({ navigation }) {
 
 const styles = StyleSheet.create({
   bg: { flex: 1 },
+  center: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#1A1A1A",
+  },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     paddingHorizontal: 20,
     paddingTop: 50,
   },
@@ -96,6 +156,40 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
-  btnText: { color: "#FFF", fontSize: 11, fontWeight: "bold" },
+  btnText: {
+    color: "#FFF",
+    fontSize: 11,
+    fontWeight: "bold",
+  },
+  subInstruction: {
+    color: "#CCC",
+    textAlign: "center",
+    fontSize: 12,
+    marginBottom: 20,
+    fontStyle: "italic",
+  },
+  emptyText: {
+    color: "#FFF",
+    textAlign: "center",
+    marginTop: 40,
+    fontSize: 16,
+    opacity: 0.6,
+  },
+  saveBtn: {
+    backgroundColor: "rgba(46, 67, 49, 0.9)",
+    paddingVertical: 15,
+    borderRadius: 15,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#BADE7C",
+  },
+  saveText: {
+    color: "#FFF",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 1,
+  },
 });
